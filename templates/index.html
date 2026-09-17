@@ -1,0 +1,1106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifyAI | AI-Based Fake Identity & Document Screening System</title>
+    
+    <!-- Meta tags for hackathon & evaluation -->
+    <meta name="description" content="AI-Based Fake Identity & Document Screening Prototype for Smart India Hackathon. Provides automated quality checks, OCR text extraction, consistency checks, and explainable risk scores.">
+    <meta name="keywords" content="SIH, Smart India Hackathon, Document Screening, AI, OCR, OpenCV, Fake ID Detection, Cybersecurity">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#070b14',
+                            surface: '#0c1322',
+                            card: '#0f1a2e',
+                            border: 'rgba(56, 189, 248, 0.15)',
+                            cyan: '#38bdf8',
+                            blue: '#2563eb',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+</head>
+<body class="cyber-grid text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-5 z-50 flex flex-col gap-3 max-w-sm"></div>
+
+    <!-- Mandatory Top Prototype Banner -->
+    <div class="bg-gradient-to-r from-cyan-950/80 via-slate-900 to-cyan-950/80 border-b border-cyan-500/20 py-2 px-4 text-xs font-mono text-center text-cyan-300 flex items-center justify-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span><strong>SIH Prototype:</strong> AI-Assisted Document & Identity Screening System • Testing strictly with synthetic/demo documents</span>
+    </div>
+
+    <!-- 1. LANDING PAGE NAVBAR -->
+    <nav class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo -->
+                <a href="#home" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform">
+                        <i class="fas fa-shield-halved text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">
+                            Verify<span class="text-cyan-400">AI</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono tracking-wider uppercase -mt-1">Document Screener</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+                    <a href="#home" class="hover:text-cyan-400 transition-colors">Home</a>
+                    <a href="#screening-dashboard" class="hover:text-cyan-400 transition-colors">Screening</a>
+                    <a href="#how-it-works" class="hover:text-cyan-400 transition-colors">How It Works</a>
+                    <a href="#technology" class="hover:text-cyan-400 transition-colors">Technology</a>
+                    <a href="#research" class="hover:text-cyan-400 transition-colors">Research</a>
+                    <a href="#impact" class="hover:text-cyan-400 transition-colors">Impact</a>
+                    <a href="#admin-dashboard" class="hover:text-cyan-400 transition-colors">Analytics</a>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-3">
+                    <a href="#screening-dashboard" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden rounded-xl font-semibold text-xs tracking-wider uppercase group bg-gradient-to-r from-cyan-500 to-blue-600 group-hover:from-cyan-500 group-hover:to-blue-600 hover:text-white text-white shadow-lg shadow-cyan-500/20">
+                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-slate-950 rounded-[10px] group-hover:bg-opacity-0 flex items-center gap-2">
+                            <i class="fas fa-fingerprint text-cyan-400 group-hover:text-white"></i>
+                            <span>Start Screening</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-grow">
+
+        <!-- 1. HERO SECTION -->
+        <section id="home" class="relative pt-12 pb-20 overflow-hidden">
+            <!-- Ambient Glow Backgrounds -->
+            <div class="absolute top-10 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+            <div class="absolute top-20 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left Hero Copy -->
+                    <div class="lg:col-span-7 space-y-6 text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-400 text-xs font-mono">
+                            <i class="fas fa-microchip"></i>
+                            <span>Smart India Hackathon • Problem Statement Prototype</span>
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                            AI-Powered Identity & <br class="hidden sm:inline">
+                            <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 bg-clip-text text-transparent">
+                                Document Screening
+                            </span>
+                        </h1>
+
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                            Detect inconsistencies, extract document information, and generate explainable risk flags using AI-assisted document analysis.
+                        </p>
+
+                        <!-- CTA Action Buttons -->
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <a href="#screening-dashboard" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] transition-all flex items-center gap-2">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Screen a Document</span>
+                            </a>
+                            <a href="#technology" class="px-6 py-3.5 rounded-xl border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200 font-semibold text-sm transition-all flex items-center gap-2">
+                                <i class="fas fa-layer-group text-cyan-400"></i>
+                                <span>Explore Technology</span>
+                            </a>
+                        </div>
+
+                        <!-- Mini Credential Tags -->
+                        <div class="pt-4 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-check text-cyan-400"></i>
+                                <span>OpenCV Image Quality</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-check text-cyan-400"></i>
+                                <span>OCR Field Extraction</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-check text-cyan-400"></i>
+                                <span>Risk Scoring & Flags</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Futuristic AI Visual -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-md">
+                            <!-- Outer Glowing Card Frame -->
+                            <div class="glass-card p-6 border-cyan-500/30 radar-scanner relative overflow-hidden">
+                                <!-- Cyber Corner Accents -->
+                                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400"></div>
+                                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400"></div>
+                                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400"></div>
+                                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400"></div>
+
+                                <!-- Card Header -->
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                                        <span class="font-mono text-xs text-cyan-300 font-semibold">VERIFYAI // ACTIVE SCAN</span>
+                                    </div>
+                                    <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">FPS: 60</span>
+                                </div>
+
+                                <!-- Futuristic Credential Hologram -->
+                                <div class="bg-slate-900/90 rounded-lg p-4 border border-slate-700/60 relative">
+                                    <div class="flex gap-3 items-center">
+                                        <div class="w-14 h-18 bg-slate-800 rounded border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                                            <i class="fas fa-user-shield text-2xl"></i>
+                                        </div>
+                                        <div class="flex-1 space-y-1.5">
+                                            <div class="h-3 bg-cyan-400/40 rounded w-3/4"></div>
+                                            <div class="h-2 bg-slate-700 rounded w-1/2"></div>
+                                            <div class="h-2 bg-slate-700 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-400">
+                                        <span>MRZ / PATTERN CHECK</span>
+                                        <span class="text-emerald-400 font-semibold">PASSED</span>
+                                    </div>
+                                </div>
+
+                                <!-- Metrics Micro-Grid -->
+                                <div class="grid grid-cols-3 gap-2 mt-4 text-center font-mono text-xs">
+                                    <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                                        <div class="text-[10px] text-slate-400">LAPLACIAN</div>
+                                        <div class="text-cyan-400 font-semibold mt-0.5">384.2</div>
+                                    </div>
+                                    <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                                        <div class="text-[10px] text-slate-400">OCR CONF</div>
+                                        <div class="text-cyan-400 font-semibold mt-0.5">92.4%</div>
+                                    </div>
+                                    <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                                        <div class="text-[10px] text-slate-400">ANOMALY</div>
+                                        <div class="text-emerald-400 font-semibold mt-0.5">NONE</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3 Feature Highlight Cards Below Hero -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+                    <!-- Feature 1 -->
+                    <div class="glass-card p-6 group hover:-translate-y-1 transition-transform">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">OCR & Data Extraction</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Extracts textual data from uploaded identity documents, identifying critical identity fields like Full Name, DOB, and Document ID.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="glass-card p-6 group hover:-translate-y-1 transition-transform">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-sliders"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Document Consistency Analysis</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Cross-verifies field completeness, date formats, calendar chronology, and image quality metrics such as blur and contrast.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="glass-card p-6 group hover:-translate-y-1 transition-transform">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Explainable Risk Flags</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Computes an auditable 0-100 risk score with transparent, severity-tagged explanations for every detected irregularity.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 2. DOCUMENT SCREENING DASHBOARD -->
+        <section id="screening-dashboard" class="py-16 bg-slate-950/60 border-t border-b border-slate-800/80">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                        Primary Screening Interface
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                        Screen Your Document
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">
+                        Upload an identity document image or choose a pre-configured synthetic sample to execute the automated screening pipeline.
+                    </p>
+                </div>
+
+                <!-- Synthetic Demo Selector Bar (DEMO MODE) -->
+                <div class="glass-card p-4 mb-6 border-cyan-500/20 bg-slate-900/60">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-2 text-xs font-mono text-cyan-300">
+                            <i class="fas fa-wand-magic-sparkles text-cyan-400"></i>
+                            <span><strong>Hackathon Demo Mode:</strong> Select a synthetic test document:</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" class="demo-doc-btn px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/30 text-emerald-300 text-xs font-medium hover:bg-emerald-900/40 transition-colors flex items-center gap-1.5" data-demo-type="valid">
+                                <i class="fas fa-check-circle"></i> 1. Clean Sample (Low)
+                            </button>
+                            <button type="button" class="demo-doc-btn px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs font-medium hover:bg-amber-900/40 transition-colors flex items-center gap-1.5" data-demo-type="blurry">
+                                <i class="fas fa-exclamation-triangle"></i> 2. Blurry Sample (Med)
+                            </button>
+                            <button type="button" class="demo-doc-btn px-3 py-1.5 rounded-lg border border-rose-500/40 bg-rose-950/30 text-rose-300 text-xs font-medium hover:bg-rose-900/40 transition-colors flex items-center gap-1.5" data-demo-type="inconsistent">
+                                <i class="fas fa-times-circle"></i> 3. Corrupted Sample (High)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Upload Card -->
+                <div class="glass-card p-6 sm:p-8 relative">
+                    <form id="screening-form" onsubmit="event.preventDefault();">
+                        <input type="file" id="document-input" name="document" accept=".jpg,.jpeg,.png" class="hidden">
+                        
+                        <!-- Drag & Drop Zone -->
+                        <div id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all bg-slate-900/30 group">
+                            
+                            <!-- State A: Upload Prompt -->
+                            <div id="upload-prompt" class="space-y-4">
+                                <div class="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 mx-auto flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-cloud-arrow-up"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base sm:text-lg font-semibold text-white">
+                                        Drag & drop document image, or <span class="text-cyan-400 underline decoration-cyan-500/40">browse files</span>
+                                    </h3>
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        Accepts JPG, JPEG, PNG • Maximum file size: 5 MB
+                                    </p>
+                                </div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-slate-800/80 text-[11px] font-mono text-slate-400">
+                                    <i class="fas fa-shield-halved text-cyan-400"></i>
+                                    <span>Privacy Safe: File automatically deleted immediately after screening</span>
+                                </div>
+                            </div>
+
+                            <!-- State B: Selected File Preview Container -->
+                            <div id="preview-container" class="hidden space-y-4">
+                                <div class="relative max-w-sm mx-auto rounded-xl overflow-hidden border border-cyan-500/30 shadow-2xl bg-black/50">
+                                    <img id="preview-image" src="" alt="Document Preview" class="w-full h-48 sm:h-56 object-contain">
+                                    <button type="button" id="remove-file-btn" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-slate-900/90 text-rose-400 hover:text-white hover:bg-rose-600 transition-colors flex items-center justify-center shadow">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-center gap-4 text-xs font-mono text-slate-300">
+                                    <span id="preview-filename" class="font-semibold text-cyan-300"></span>
+                                    <span class="text-slate-500">•</span>
+                                    <span id="preview-filesize" class="text-slate-400"></span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Action Button Bar -->
+                        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-xs text-slate-400 flex items-center gap-2">
+                                <i class="fas fa-info-circle text-cyan-400"></i>
+                                <span>Rule-based consistency engine + OpenCV blur estimation</span>
+                            </div>
+
+                            <button type="button" id="analyze-btn" disabled class="opacity-50 cursor-not-allowed w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm tracking-wider uppercase shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-magnifying-glass-chart"></i>
+                                <span>Analyze Document</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Animated Progress Indicator (Hidden by default) -->
+                <div id="progress-card" class="hidden mt-8 glass-card p-6 border-cyan-500/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-microchip text-cyan-400 animate-spin"></i>
+                            <h4 class="font-bold text-white text-sm">Processing Document Screening Pipeline</h4>
+                        </div>
+                        <span class="text-xs font-mono text-cyan-400">Executing Steps...</span>
+                    </div>
+
+                    <!-- Progress Bar Track -->
+                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-6">
+                        <div id="pipeline-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300 w-0"></div>
+                    </div>
+
+                    <!-- 5 Steps List -->
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                        <div id="step-1" class="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-400 text-xs">
+                            <span class="step-icon"><i class="fas fa-circle-notch text-xs text-slate-500"></i></span>
+                            <span>1. Uploading</span>
+                        </div>
+                        <div id="step-2" class="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-400 text-xs">
+                            <span class="step-icon"><i class="fas fa-circle-notch text-xs text-slate-500"></i></span>
+                            <span>2. Preprocessing</span>
+                        </div>
+                        <div id="step-3" class="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-400 text-xs">
+                            <span class="step-icon"><i class="fas fa-circle-notch text-xs text-slate-500"></i></span>
+                            <span>3. OCR Extraction</span>
+                        </div>
+                        <div id="step-4" class="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-400 text-xs">
+                            <span class="step-icon"><i class="fas fa-circle-notch text-xs text-slate-500"></i></span>
+                            <span>4. Consistency</span>
+                        </div>
+                        <div id="step-5" class="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-400 text-xs">
+                            <span class="step-icon"><i class="fas fa-circle-notch text-xs text-slate-500"></i></span>
+                            <span>5. Result</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. SCREENING RESULT DASHBOARD (Hidden until analysis runs) -->
+        <section id="result-section" class="hidden py-16">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                
+                <!-- Mandatory Assistive Decision Support Disclaimer Box -->
+                <div class="p-4 rounded-xl border border-cyan-500/30 bg-cyan-950/30 text-cyan-200 text-xs sm:text-sm flex items-start gap-3 shadow-lg">
+                    <i class="fas fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
+                    <div>
+                        <strong class="text-white block mb-0.5">Prototype screening result — authorized human verification is required.</strong>
+                        <span>Important: This system provides risk-based screening assistance only. A screening flag does not establish that an identity document is fraudulent. Authorized human verification is required.</span>
+                    </div>
+                </div>
+
+                <!-- Top Card: Screening Result Summary -->
+                <div class="glass-card p-6 sm:p-8">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                                <i class="fas fa-clipboard-check text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Screening Result</h3>
+                                <p class="text-xs text-slate-400">Automated Risk-Based Decision Support</p>
+                            </div>
+                        </div>
+                        <!-- Risk Level Pill -->
+                        <div id="risk-level-badge" class="px-4 py-1.5 rounded-full font-bold text-sm tracking-wider uppercase">
+                            --
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                        <!-- Circular Gauge Indicator -->
+                        <div class="md:col-span-5 flex flex-col items-center justify-center">
+                            <div class="relative w-40 h-40">
+                                <svg class="w-full h-full" viewBox="0 0 120 120">
+                                    <circle class="gauge-circle-bg" cx="60" cy="60" r="54"></circle>
+                                    <circle id="gauge-progress" class="gauge-circle-progress" cx="60" cy="60" r="54" style="stroke-dasharray: 339.29; stroke-dashoffset: 339.29;"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-[11px] font-mono text-slate-400 tracking-wider">RISK SCORE</span>
+                                    <span id="risk-score-value" class="text-2xl font-extrabold text-white font-mono mt-0.5">--/100</span>
+                                </div>
+                            </div>
+                            <p id="risk-score-summary" class="text-xs text-center text-slate-300 mt-4 max-w-xs leading-relaxed"></p>
+                        </div>
+
+                        <!-- Extracted Information -->
+                        <div class="md:col-span-7 bg-slate-900/60 rounded-xl p-5 border border-slate-800 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm font-bold text-cyan-300 font-mono flex items-center gap-2">
+                                    <i class="fas fa-id-card"></i> Extracted Information
+                                </h4>
+                                <span class="text-[11px] text-slate-400 font-mono">OCR Yield</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <span class="text-slate-400 block text-[11px]">Full Name:</span>
+                                    <span id="extracted-name" class="font-bold text-white text-sm">--</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[11px]">Date of Birth (DOB):</span>
+                                    <span id="extracted-dob" class="font-bold text-white text-sm font-mono">--</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[11px]">Document ID:</span>
+                                    <span id="extracted-id" class="font-bold text-cyan-400 text-sm font-mono">--</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[11px]">Gender:</span>
+                                    <span id="extracted-gender" class="font-medium text-slate-200">--</span>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <span class="text-slate-400 block text-[11px]">Document Validity:</span>
+                                    <span id="extracted-dates" class="font-mono text-slate-300">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Raw OCR Text Toggle -->
+                            <details class="mt-3 pt-3 border-t border-slate-800 group">
+                                <summary class="cursor-pointer text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 select-none">
+                                    <i class="fas fa-chevron-right text-[10px] group-open:rotate-90 transition-transform"></i>
+                                    <span>View Raw OCR Text Stream</span>
+                                </summary>
+                                <pre id="ocr-raw-snippet" class="mt-2 p-3 rounded-lg bg-black/60 border border-slate-800 text-[11px] font-mono text-slate-300 max-h-36 overflow-y-auto whitespace-pre-wrap"></pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. DETECTED REVIEW FLAGS -->
+                <div class="glass-card p-6 sm:p-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Detected Review Flags</h3>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400">Explainable Screening Findings</span>
+                    </div>
+
+                    <div id="review-flags-container" class="space-y-3">
+                        <!-- Dynamically filled by JS -->
+                    </div>
+                </div>
+
+                <!-- 5. ANALYSIS BREAKDOWN (4 Cards) -->
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-cyan-400 text-base"></i>
+                        <span>Analysis Breakdown</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        
+                        <!-- Card 1: OCR Analysis -->
+                        <div class="glass-card p-5 space-y-3">
+                            <div class="flex items-center justify-between text-cyan-400 text-xs font-mono">
+                                <span>OCR ANALYSIS</span>
+                                <i class="fas fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Extraction Status:</div>
+                                <div id="breakdown-ocr-status" class="font-semibold text-white text-xs mt-0.5">--</div>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Confidence Score:</div>
+                                <div id="breakdown-ocr-confidence" class="font-mono font-bold text-cyan-400 text-sm mt-0.5">--%</div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+                                <span id="breakdown-ocr-engine" class="block truncate">--</span>
+                                <span id="breakdown-ocr-yield" class="text-slate-500">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Document Quality -->
+                        <div class="glass-card p-5 space-y-3">
+                            <div class="flex items-center justify-between text-cyan-400 text-xs font-mono">
+                                <span>IMAGE QUALITY</span>
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Blur Metric (Laplacian):</div>
+                                <div id="breakdown-quality-blur" class="font-mono font-semibold text-xs mt-0.5">--</div>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Contrast & Exposure:</div>
+                                <div id="breakdown-quality-contrast" class="text-slate-200 text-xs mt-0.5">--</div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+                                <div id="breakdown-quality-resolution">--</div>
+                                <div id="breakdown-quality-ratio" class="text-slate-500">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Consistency Checks -->
+                        <div class="glass-card p-5 space-y-3">
+                            <div class="flex items-center justify-between text-cyan-400 text-xs font-mono">
+                                <span>CONSISTENCY</span>
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Required Fields:</div>
+                                <div id="breakdown-cons-fields" class="font-semibold text-xs mt-0.5">--</div>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Date Format & Chronology:</div>
+                                <div id="breakdown-cons-date" class="text-xs mt-0.5">--</div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+                                <div id="breakdown-cons-patterns">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Risk Assessment -->
+                        <div class="glass-card p-5 space-y-3">
+                            <div class="flex items-center justify-between text-cyan-400 text-xs font-mono">
+                                <span>RISK ASSESSMENT</span>
+                                <i class="fas fa-shield-virus"></i>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Prototype Risk Score:</div>
+                                <div id="breakdown-risk-score" class="font-mono font-bold text-white text-base mt-0.5">--</div>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">Assigned Review Tier:</div>
+                                <div id="breakdown-risk-level" class="font-bold text-xs mt-0.5 uppercase tracking-wide">--</div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+                                <span>Processing Time: </span>
+                                <span id="breakdown-risk-time" class="text-cyan-400">-- ms</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. HOW IT WORKS -->
+        <section id="how-it-works" class="py-20 bg-slate-950/40 border-t border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                        Modular Architecture
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                        How It Works
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">
+                        A transparent 7-step screening pipeline designed for explainable identity document evaluation.
+                    </p>
+                </div>
+
+                <!-- Pipeline Steps Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-7 gap-3 relative">
+                    
+                    <!-- Step 1 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            01
+                        </div>
+                        <i class="fas fa-upload text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Upload Document</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Secure MIME & size validation</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            02
+                        </div>
+                        <i class="fas fa-wand-magic text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Preprocessing</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">OpenCV blur, contrast & resolution</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            03
+                        </div>
+                        <i class="fas fa-font text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">OCR</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Tesseract optical text extraction</p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            04
+                        </div>
+                        <i class="fas fa-id-badge text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Field Extraction</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Regex matching for Name, DOB, ID</p>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            05
+                        </div>
+                        <i class="fas fa-code-compare text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Consistency</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Date logic & anomaly checks</p>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono text-sm mb-3">
+                            06
+                        </div>
+                        <i class="fas fa-calculator text-xl text-cyan-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Risk Scoring</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Weighted 0-100 deduction model</p>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div class="glass-card p-4 text-center flex flex-col items-center justify-between relative group hover:border-cyan-500/40">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono text-sm mb-3">
+                            07
+                        </div>
+                        <i class="fas fa-file-circle-check text-xl text-emerald-400 mb-2"></i>
+                        <h4 class="font-bold text-white text-xs mb-1">Screening Result</h4>
+                        <p class="text-[11px] text-slate-400 leading-snug">Explainable review flags & audit</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 7. TECHNOLOGY SECTION -->
+        <section id="technology" class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                        Engine Architecture
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                        Technology Stack
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">
+                        Built with an enterprise-grade Python and Django foundation integrated with Computer Vision and OCR algorithms.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Tech 1: Python -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl mb-4">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Python 3.12</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Serves as the high-performance programming core for image processing pipelines, regex parsing, and risk evaluation logic.
+                        </p>
+                    </div>
+
+                    <!-- Tech 2: Django -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl mb-4">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Django</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Provides a secure, robust web framework managing routing, CSRF protection, file upload limits, and audit log persistence.
+                        </p>
+                    </div>
+
+                    <!-- Tech 3: DRF -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl mb-4">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Django REST Framework</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Powers scalable RESTful endpoints (`/api/screen/`, `/api/stats/`) with multipart parsing, validation, and JSON serialization.
+                        </p>
+                    </div>
+
+                    <!-- Tech 4: OpenCV -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl mb-4">
+                            <i class="fas fa-camera-rotate"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">OpenCV (cv2)</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Executes computer vision analytics including Laplacian focus variance (blur detection), contrast distribution, and adaptive thresholding.
+                        </p>
+                    </div>
+
+                    <!-- Tech 5: Tesseract OCR -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl mb-4">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Tesseract OCR</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Extracts textual characters and document structures using optical character recognition, with intelligent fallback for prototype testing.
+                        </p>
+                    </div>
+
+                    <!-- Tech 6: JavaScript -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-2xl mb-4">
+                            <i class="fab fa-js"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">JavaScript (ES6+)</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Orchestrates drag-and-drop interactions, live image previews, animated steppers, and asynchronous REST communication.
+                        </p>
+                    </div>
+
+                    <!-- Tech 7: Tailwind CSS -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl mb-4">
+                            <i class="fab fa-css3-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Tailwind CSS & Glassmorphism</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Delivers a responsive, dark cybersecurity dashboard aesthetic with backdrop filters, glowing accents, and radar animations.
+                        </p>
+                    </div>
+
+                    <!-- Tech 8: Chart.js -->
+                    <div class="glass-card p-6">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl mb-4">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Chart.js Visualizations</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Renders real-time risk level distributions and analytics metrics for administrative screening oversight.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 8. RESEARCH & STANDARDS SECTION -->
+        <section id="research" class="py-20 bg-slate-950/60 border-t border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                        Academic & Regulatory Foundations
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                        Research & Standards
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">
+                        Grounded in established international digital identity guidelines and secure application architecture.
+                    </p>
+                </div>
+
+                <!-- Standards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    
+                    <!-- Standard 1 -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-book-bookmark text-cyan-400 text-lg"></i>
+                            <h3 class="font-bold text-white text-base">NIST SP 800-63</h3>
+                        </div>
+                        <h4 class="text-xs font-mono text-cyan-300 mb-2">Digital Identity Guidelines</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Adheres to Identity Assurance Level (IAL) principles concerning document resolution, optical verification heuristics, and evidence validation checks.
+                        </p>
+                    </div>
+
+                    <!-- Standard 2 -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-passport text-blue-400 text-lg"></i>
+                            <h3 class="font-bold text-white text-base">ICAO Doc 9303</h3>
+                        </div>
+                        <h4 class="text-xs font-mono text-blue-300 mb-2">Machine Readable Travel Documents</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Informed by optical character zone formatting and visual inspection zone (VIZ) standards for official government identity credentials.
+                        </p>
+                    </div>
+
+                    <!-- Standard 3 -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-shield-virus text-emerald-400 text-lg"></i>
+                            <h3 class="font-bold text-white text-base">OWASP Principles</h3>
+                        </div>
+                        <h4 class="text-xs font-mono text-emerald-300 mb-2">Application Security Verification</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Strict input sanitization, file payload size limits, memory handling limits, and zero persistent storage of identity document images.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Research Gap Card -->
+                <div class="glass-card p-8 border-cyan-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/30">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl shrink-0 mt-1">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-2">Research Gap</h3>
+                            <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+                                "Existing verification workflows often depend on separate OCR, consistency checks, image analysis and manual review processes. Our prototype combines these components into a modular screening workflow with explainable review flags."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 9. IMPACT SECTION -->
+        <section id="impact" class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                        Operational Benefits
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                        System Impact
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">
+                        Enhancing document screening throughput and accuracy while preserving human oversight.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    
+                    <!-- Impact 1 -->
+                    <div class="glass-card p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                            <i class="fas fa-user-check text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Identity Verification Support</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Helps identify documents requiring additional review.
+                        </p>
+                    </div>
+
+                    <!-- Impact 2 -->
+                    <div class="glass-card p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                            <i class="fas fa-shield-halved text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Fraud Risk Reduction</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Flags suspicious patterns before manual verification.
+                        </p>
+                    </div>
+
+                    <!-- Impact 3 -->
+                    <div class="glass-card p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <i class="fas fa-bolt text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Faster Screening</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Automates basic document analysis.
+                        </p>
+                    </div>
+
+                    <!-- Impact 4 -->
+                    <div class="glass-card p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <i class="fas fa-comment-dots text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Explainable Results</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Shows why a document was flagged.
+                        </p>
+                    </div>
+
+                    <!-- Impact 5 -->
+                    <div class="glass-card p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                            <i class="fas fa-lock text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Privacy-Aware Design</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Avoid unnecessary storage of uploaded documents.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 10. ADMIN / ANALYTICS DASHBOARD -->
+        <section id="admin-dashboard" class="py-20 bg-slate-950/60 border-t border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                    <div>
+                        <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/30">
+                            Operational Oversight
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">
+                            Admin & Analytics Dashboard
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-1">
+                            Live inspection of screening volumes, risk distributions, and recent audit trails (Sample & Live Data).
+                        </p>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button onclick="refreshAdminStats(); showToast('Analytics refreshed', 'info');" class="self-start md:self-auto px-4 py-2 rounded-lg border border-slate-700 bg-slate-900 text-xs font-mono text-cyan-300 hover:bg-slate-800 transition-colors flex items-center gap-2">
+                        <i class="fas fa-rotate text-cyan-400"></i>
+                        <span>Refresh Metrics</span>
+                    </button>
+                </div>
+
+                <!-- 4 KPI Counter Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    
+                    <!-- Stat 1: Total Screened -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+                            <span>DOCUMENTS SCREENED</span>
+                            <i class="fas fa-file-shield text-cyan-400"></i>
+                        </div>
+                        <div id="stat-total-screened" class="text-3xl font-extrabold text-white font-mono mt-2">128</div>
+                        <div class="text-[11px] text-cyan-400 font-mono mt-1">
+                            <i class="fas fa-arrow-trend-up"></i> Prototype Active
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Low Review -->
+                    <div class="glass-card p-6 border-emerald-500/20">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+                            <span>LOW REVIEW</span>
+                            <i class="fas fa-circle-check text-emerald-400"></i>
+                        </div>
+                        <div id="stat-low-review" class="text-3xl font-extrabold text-emerald-400 font-mono mt-2">72</div>
+                        <div class="text-[11px] text-slate-400 font-mono mt-1">High confidence yield</div>
+                    </div>
+
+                    <!-- Stat 3: Medium Review -->
+                    <div class="glass-card p-6 border-amber-500/20">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+                            <span>MEDIUM REVIEW</span>
+                            <i class="fas fa-triangle-exclamation text-amber-400"></i>
+                        </div>
+                        <div id="stat-medium-review" class="text-3xl font-extrabold text-amber-400 font-mono mt-2">39</div>
+                        <div class="text-[11px] text-slate-400 font-mono mt-1">Manual secondary check</div>
+                    </div>
+
+                    <!-- Stat 4: High Review -->
+                    <div class="glass-card p-6 border-rose-500/20">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+                            <span>HIGH REVIEW</span>
+                            <i class="fas fa-circle-exclamation text-rose-400"></i>
+                        </div>
+                        <div id="stat-high-review" class="text-3xl font-extrabold text-rose-400 font-mono mt-2">17</div>
+                        <div class="text-[11px] text-slate-400 font-mono mt-1">Severe anomalies flagged</div>
+                    </div>
+
+                </div>
+
+                <!-- Chart & Activity Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- Left: Risk Distribution Chart -->
+                    <div class="lg:col-span-5 glass-card p-6">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i class="fas fa-chart-donut text-cyan-400"></i>
+                                <span>Risk Distribution</span>
+                            </h3>
+                            <span class="text-[10px] font-mono text-slate-400">All Tiers</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="risk-distribution-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Recent Screening Activity Table -->
+                    <div class="lg:col-span-7 glass-card p-6">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i class="fas fa-clock-rotate-left text-cyan-400"></i>
+                                <span>Recent Screening Audit Trail</span>
+                            </h3>
+                            <span class="text-[10px] font-mono text-cyan-400">Sample Records</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                                        <th class="py-2.5 px-4">Screening Date</th>
+                                        <th class="py-2.5 px-4">Document Type</th>
+                                        <th class="py-2.5 px-4">Document ID</th>
+                                        <th class="py-2.5 px-4">Score</th>
+                                        <th class="py-2.5 px-4">Risk Status</th>
+                                        <th class="py-2.5 px-4">Review Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-activity-tbody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-sm">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-white text-base">VerifyAI</span>
+                        <p class="text-xs text-slate-400">AI-Based Fake Identity & Document Screening System • SIH Prototype</p>
+                    </div>
+                </div>
+
+                <div class="text-xs text-slate-400 text-center md:text-right font-mono space-y-1">
+                    <div>Smart India Hackathon (SIH) Prototype Presentation</div>
+                    <div class="text-slate-400 text-[11px]">Strictly synthetic demo data • Authorized human verification is required</div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JavaScript Controller -->
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

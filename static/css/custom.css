@@ -1,0 +1,208 @@
+/* VerifyAI - Cybersecurity & AI Screening Dashboard Aesthetic */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --bg-dark: #070b14;
+    --bg-surface: #0c1322;
+    --bg-glass: rgba(13, 22, 38, 0.72);
+    --border-glass: rgba(56, 189, 248, 0.15);
+    --cyan-glow: #38bdf8;
+    --blue-accent: #2563eb;
+    --emerald-safe: #10b981;
+    --amber-review: #f59e0b;
+    --rose-high: #f43f5e;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-dark);
+    color: #f1f5f9;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Subtle Cyber Grid Background */
+.cyber-grid {
+    background-size: 40px 40px;
+    background-image: 
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+}
+
+/* Glassmorphic Cyber Cards */
+.glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 15px 0 rgba(56, 189, 248, 0.05);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(56, 189, 248, 0.12);
+}
+
+/* Futuristic Neon Glows */
+.neon-glow-cyan {
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+}
+
+.neon-glow-emerald {
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+}
+
+.neon-glow-rose {
+    box-shadow: 0 0 25px rgba(244, 63, 94, 0.35);
+}
+
+.neon-glow-amber {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+.neon-text-cyan {
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+/* Radar / Holographic Scanning Animation */
+.radar-scanner {
+    position: relative;
+    overflow: hidden;
+}
+
+.radar-scanner::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(56, 189, 248, 0.08) 70%,
+        rgba(56, 189, 248, 0.45) 98%,
+        #38bdf8 100%
+    );
+    box-shadow: 0 0 15px #38bdf8;
+    animation: scanLine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes scanLine {
+    0% {
+        top: -100%;
+        opacity: 0.2;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        top: 100%;
+        opacity: 0.2;
+    }
+}
+
+/* Pulsing Cyber Rings */
+@keyframes pulseRing {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+}
+
+.pulse-ring {
+    animation: pulseRing 4s ease-in-out infinite;
+}
+
+/* Circular Gauge Progress Indicator */
+.gauge-circle-bg {
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 10;
+    fill: none;
+}
+
+.gauge-circle-progress {
+    stroke-width: 10;
+    stroke-linecap: round;
+    fill: none;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+/* Interactive Upload Area Drag-over */
+.drag-active {
+    border-color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.08) !important;
+    transform: scale(1.01);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #070b14;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+}
+
+/* Pipeline Step Nodes */
+.step-node-active {
+    border-color: #38bdf8;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+}
+
+.step-node-done {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+/* Badge Glows */
+.badge-low {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+.badge-medium {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+.badge-high {
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    color: #fb7185;
+}
