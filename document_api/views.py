@@ -1,6 +1,7 @@
 import os
 import logging
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,7 +13,7 @@ from .serializers import DocumentUploadSerializer
 from .models import ScreeningLog
 
 logger = logging.getLogger(__name__)
-
+@ensure_csrf_cookie
 def index_view(request):
     """Renders the main single-page modern cybersecurity application."""
     return render(request, 'index.html')
@@ -143,25 +144,41 @@ class DemoSamplesView(APIView):
     def get(self, request, *args, **kwargs):
         samples = [
             {
-                "id": "valid",
-                "name": "Synthetic Clean Credential",
-                "description": "High resolution, sharp focus, consistent fields (Expected: LOW REVIEW)",
-                "filename": "sample_valid.png",
-                "url": "/static/samples/sample_valid.png",
+                "id": "doc_a",
+                "name": "Demo Document A",
+                "description": "Fictional ID: Demo User A • DOB: 01/01/2000 • ID: DEMO123456",
+                "filename": "sample_a.png",
+                "url": "/static/samples/sample_a.png",
+                "expected_risk": "LOW REVIEW"
+            },
+            {
+                "id": "doc_b",
+                "name": "Demo Document B",
+                "description": "Fictional ID: Demo User B • DOB: 15/05/2001 • ID: DEMO789012",
+                "filename": "sample_b.png",
+                "url": "/static/samples/sample_b.png",
+                "expected_risk": "LOW REVIEW"
+            },
+            {
+                "id": "doc_c",
+                "name": "Demo Document C",
+                "description": "Fictional ID: Demo User C • DOB: 20/10/1999 • ID: DEMO456789",
+                "filename": "sample_c.png",
+                "url": "/static/samples/sample_c.png",
                 "expected_risk": "LOW REVIEW"
             },
             {
                 "id": "blurry",
                 "name": "Low Quality / Blurry Scan",
-                "description": "Simulated camera motion blur and reduced contrast (Expected: MEDIUM REVIEW)",
+                "description": "Simulated camera motion blur and reduced contrast (Expected: HIGH REVIEW)",
                 "filename": "sample_blurry.png",
                 "url": "/static/samples/sample_blurry.png",
-                "expected_risk": "MEDIUM REVIEW"
+                "expected_risk": "HIGH REVIEW"
             },
             {
                 "id": "inconsistent",
                 "name": "Inconsistent / Corrupted Data",
-                "description": "Corrupted date format, future year, and invalid ID tokens (Expected: HIGH REVIEW)",
+                "description": "Future birth year (2099) and invalid ID tokens (Expected: HIGH REVIEW)",
                 "filename": "sample_inconsistent.png",
                 "url": "/static/samples/sample_inconsistent.png",
                 "expected_risk": "HIGH REVIEW"
